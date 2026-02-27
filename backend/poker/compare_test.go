@@ -37,10 +37,11 @@ func TestP1WinsFlushVsPair(t *testing.T) {
 }
 
 func TestP2WinsThreeOfAKindVsTwoPair(t *testing.T) {
-	// P2 gets three of a kind; P1 only gets two pair.
-	p1   := hole2("HK", "HQ")   // KK QQ from community → two pair
-	p2   := hole2("SA", "CA")   // AAA → three of a kind
-	comm := community5("DA", "HK", "CQ", "D2", "H3")
+	// P2 gets three of a kind (AAA); P1 only gets two pair (KK + QQ).
+	// No card appears in more than one hand.
+	p1   := hole2("SK", "SQ")   // pairs up with DK, DQ in community → two pair
+	p2   := hole2("SA", "CA")   // pairs up with DA in community → three of a kind
+	comm := community5("DA", "DK", "DQ", "H2", "H3")
 
 	_, _, winner, err := CompareTwo(p1, p2, comm)
 	if err != nil {

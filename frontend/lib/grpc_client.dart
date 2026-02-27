@@ -1,23 +1,35 @@
-
 import 'package:grpc/grpc_web.dart';
 import 'proto/poker.pbgrpc.dart';
 
 class PokerGrpcClient {
   late final PokerEvaluatorClient stub;
 
-  PokerGrpcClient({String baseUrl = 'http://localhost:8080'}) {
-    final channel = GrpcWebClientChannel.xhr(Uri.parse(baseUrl));
+  PokerGrpcClient({String? baseUrl}) {
+    final url =
+        baseUrl ??
+        const String.fromEnvironment(
+          'BACKEND_URL',
+          defaultValue: 'http://localhost:8080',
+        );
+    final channel = GrpcWebClientChannel.xhr(Uri.parse(url));
     stub = PokerEvaluatorClient(channel);
   }
 
-  Future<EvaluateHandResponse> evaluateHand(List<String> hole, List<String> community) async {
+  Future<EvaluateHandResponse> evaluateHand(
+    List<String> hole,
+    List<String> community,
+  ) async {
     final req = EvaluateHandRequest()
       ..holeCards.addAll(hole)
       ..communityCards.addAll(community);
     return await stub.evaluateHand(req);
   }
 
-  Future<CompareHandsResponse> compareHands(List<String> p1, List<String> p2, List<String> community) async {
+  Future<CompareHandsResponse> compareHands(
+    List<String> p1,
+    List<String> p2,
+    List<String> community,
+  ) async {
     final req = CompareHandsRequest()
       ..player1Hole.addAll(p1)
       ..player2Hole.addAll(p2)
@@ -25,7 +37,12 @@ class PokerGrpcClient {
     return await stub.compareHands(req);
   }
 
-  Future<MonteCarloResponse> getProbabilities(List<String> hole, List<String> community, int players, int simulations) async {
+  Future<MonteCarloResponse> getProbabilities(
+    List<String> hole,
+    List<String> community,
+    int players,
+    int simulations,
+  ) async {
     final req = MonteCarloRequest()
       ..holeCards.addAll(hole)
       ..communityCards.addAll(community)
