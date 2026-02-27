@@ -1,0 +1,25 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    ports:
+      - "9090:9090" # Native gRPC
+      - "8080:8080" # gRPC-Web
+    networks:
+      - poker-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - poker-network
+
+networks:
+  poker-network:
+    driver: bridge

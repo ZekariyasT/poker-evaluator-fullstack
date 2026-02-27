@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+package poker;
+
+option go_package = "texsas/proto";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Service
+// ─────────────────────────────────────────────────────────────────────────────
+
+service PokerEvaluator {
+  // Given 2 hole cards + 5 community cards, return the best 5-card hand.
+  rpc EvaluateHand (EvaluateHandRequest) returns (EvaluateHandResponse);
+
+  // Given 2 players (each with 2 hole cards) + 5 community cards, declare winner.
+  rpc CompareHands (CompareHandsRequest) returns (CompareHandsResponse);
+
+  // Monte Carlo win-probability for 2 hole cards + 0–5 community cards.
+  rpc MonteCarloWinProb (MonteCarloRequest) returns (MonteCarloResponse);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// EvaluateHand
+// ─────────────────────────────────────────────────────────────────────────────
+
+message EvaluateHandRequest {
+  // Exactly 2 hole cards for the player.
+  repeated string hole_cards      = 1; // e.g. ["HA", "S7"]
+  // Exactly 5 community cards.
+  repeated string community_cards = 2; // e.g. ["CT", "DQ", "HK", "S2", "C3"]
+}
+
+message EvaluateHandResponse {
+  // The best 5-card hand picked from hole + community.
+  repeated string best_hand = 1;       // 5 card strings
+  string          hand_name = 2;       // e.g. "Three of a Kind"
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CompareHands
+// ─────────────────────────────────────────────────────────────────────────────
+
+message CompareHandsRequest {
+  repeated string player1_hole    = 1; // 2 cards
+  repeated string player2_hole    = 2; // 2 cards
+  repeated string community_cards = 3; // 5 cards
+}
+
+message CompareHandsResponse {
+  repeated string player1_best_hand = 1; // 5 cards
+  string          player1_hand_name = 2;
+  repeated string player2_best_hand = 3; // 5 cards
+  string          player2_hand_name = 4;
+  // "Player 1", "Player 2", or "Tie"
+  string          winner            = 5;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MonteCarloWinProb
+// ─────────────────────────────────────────────────────────────────────────────
+
+message MonteCarloRequest {
+  repeated string hole_cards      = 1; // exactly 2
+  repeated string community_cards = 2; // 0, 3, 4, or 5 cards (pre-flop, flop, turn, river)
+  int32           num_players     = 3; // total number of players at the table (2–9)
+  int32           simulations     = 4; // number of Monte Carlo iterations
+}
+
+message MonteCarloResponse {
+  // Win probability in the range [0, 1].
+  double win_probability = 1;
+  // Number of simulations that were actually run (may be capped).
+  int32  simulations_run = 2;
+}
